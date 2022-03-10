@@ -16,26 +16,16 @@
 #define GPIO_BTN_2 7
 #define GPIO_BTN_3 8
 
-extern unsigned long volatile jiffies;
-
 static struct input_dev *button_dev;
 static struct Button buttons[BTN_COUNT];
 
-static irqreturn_t button_interrupt(int irq, void *dummy)
+static irqreturn_t button_interrupt(int irq, void *data)
 {
-    struct Button *button = (struct Button*)dummy;
-
-    unsigned long diff = jiffies - button->old_jiffie;      
-    if (diff < 5)                               
-    {              
-        return IRQ_HANDLED;               
-    }
-    button->old_jiffie = jiffies;                                 
+    struct Button *button = (struct Button*)data;
 
     int pressed = gpio_get_value(button->gpio);                    
 
     input_report_key(button_dev, button->keycode, pressed);        
-    pr_info("input-driver: interrupt gpio %d, btn value: %d\n", button->gpio, pressed);      
     input_sync(button_dev);
 
     return IRQ_HANDLED;                                                                          
