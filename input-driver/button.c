@@ -8,7 +8,6 @@ int button_init(struct Button *button, unsigned int gpio, unsigned int keycode, 
     int error;
 
     button->gpio = gpio;
-    button->old_jiffie = 0;
     button->keycode = keycode;
 
     if (!gpio_is_valid(button->gpio))

@@ -8,7 +8,6 @@ struct Button
     unsigned int gpio;
     unsigned int keycode;
     unsigned int irq;
-    unsigned long old_jiffie;
 };
 
 int button_init(struct Button *button, unsigned int gpio, unsigned int keycode, irq_handler_t handler);
