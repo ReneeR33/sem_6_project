@@ -14,9 +14,10 @@
 #define GPIO_RIGHT_FOREWARD 20
 #define GPIO_RIGHT_BACKWARD 21
 
-static int car_chassis_driver_open(struct inode* pinode, struct file* pfile);
-static int car_chassis_driver_release(struct inode* pinode, struct file* pfile);
 static long car_chassis_driver_unlocked_ioctl(struct file *pfile, unsigned int cmd, unsigned long arg);
+
+static dev_t devnr;
+static struct cdev device;
 
 static Wheels left_wheels;
 static Wheels right_wheels;
@@ -24,32 +25,16 @@ static Wheels right_wheels;
 struct file_operations fops =
 {
     .owner          = THIS_MODULE,
-    .open           = car_chassis_driver_open,
-    .release        = car_chassis_driver_release,
     .unlocked_ioctl = car_chassis_driver_unlocked_ioctl
 };
 
-static int car_chassis_driver_open(struct inode* pinode, struct file* pfile)
-{
-    pr_info("car-chassis-driver: open");
-
-    return 0;
-}
-
-static int car_chassis_driver_release(struct inode* pinode, struct file* pfile)
-{
-    pr_info("car-chassis-driver: release");
-
-    return 0;
-}
-
 static long car_chassis_driver_unlocked_ioctl(struct file *pfile, unsigned int cmd, unsigned long arg)
 {
-    pr_info("car-chassis-driver: unlocked ioctl");
+    pr_info("car-chassis-driver: unlocked ioctl\n");
 
     if (arg < 0 || arg > 2)
     {
-        pr_err("car-chassis-driver: received invalid ioctl argument %d", arg);
+        pr_err("car-chassis-driver: received invalid ioctl argument %lu\n", arg);
         return -EINVAL;
     }
 
@@ -66,7 +51,7 @@ static long car_chassis_driver_unlocked_ioctl(struct file *pfile, unsigned int c
         break;
     
     default:
-        pr_err("car-chassis-driver: invalid iocl command", arg);
+        pr_err("car-chassis-driver: invalid iocl command %lu\n", arg);
         return -ENOTTY;
     }
 
@@ -75,35 +60,55 @@ static long car_chassis_driver_unlocked_ioctl(struct file *pfile, unsigned int c
 
 static int __init car_chassis_driver_init(void)
 {
-    pr_info("car-chassis-driver: init");
+    pr_info("car-chassis-driver: init\n");
 
     int error;
 
+    if ((error = alloc_chrdev_region(&devnr, 0, 1, "car-chassis-driver")) != 0)
+    {
+        pr_err("car-chassis-driver: can't get major\n");
+        return error;
+    }
+
+    cdev_init(&device, &fops);
+    device.owner = THIS_MODULE;
+
+    if ((error = cdev_add(&device, devnr, 1)) != 0)
+    {
+        pr_err("car-chassis-driver: couldn't add device\n");
+        goto err_unreg_chrdev_region;
+    }
+
     if ((error = wheels_init(&left_wheels, GPIO_LEFT_FOREWARD, GPIO_LEFT_BACKWARD)) != 0)
     {
-        return error;
+        goto err_delete_dev;
     }
     if ((error = wheels_init(&right_wheels, GPIO_RIGHT_FOREWARD, GPIO_RIGHT_BACKWARD)) != 0)
     {
         goto err_free_left_wheels;
     }
 
-    wheels_set_state(&left_wheels, WHEELS_FOREWARD);
-    wheels_set_state(&right_wheels, WHEELS_FOREWARD);
-
     return 0;
 
 err_free_left_wheels:
     wheels_free(&left_wheels);
+err_delete_dev:
+    cdev_del(&device);
+err_unreg_chrdev_region:
+    unregister_chrdev_region(devnr, 1);
+
     return error;
 }
 
 static void __exit car_chassis_driver_exit(void)
 {
-    pr_info("car-chassis-driver: exit");
+    pr_info("car-chassis-driver: exit\n");
 
     wheels_free(&left_wheels);
     wheels_free(&right_wheels);
+
+    cdev_del(&device);
+    unregister_chrdev_region(devnr, 1);
 }
 
 module_init(car_chassis_driver_init);
