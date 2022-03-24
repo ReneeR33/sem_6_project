@@ -75,10 +75,10 @@ void Server::run()
 
         if(FD_ISSET(this->socketfd, &readFds))
         {
-            int clientFD = acceptConnection();
+            int connection = acceptConnection();
             if (handler != nullptr)
             {
-                handler->onNewConnection(clientFD);
+                handler->onNewConnection(connection);
             }
         }
         else if(nrSockets != -1)
@@ -90,6 +90,10 @@ void Server::run()
                     std::string data = receiveData(connection);
                     if (data.empty())
                     {
+                        if (handler != nullptr)
+                        {
+                            handler->onClientDisconnected(connection);
+                        }
                         removedConnections.push_back(connection);
                     }
                     else
@@ -145,17 +149,18 @@ std::string Server::receiveData(int clientFD) const
 {
     std::string result;
     char buf[REC_BUF_SIZE];
-    
+
+    memset(buf, 0, REC_BUF_SIZE);
     ssize_t n;
-    while ((n = read(clientFD, buf, REC_BUF_SIZE)) > 0)
-    {
-        result.append(buf);
-    }
+
+    n = read(clientFD, buf, REC_BUF_SIZE);
 
     if(n == -1)
     {
         throw std::runtime_error("Error writing to socket: " + std::string(strerror(errno)) + "\n");
     }
+
+    result = std::string(buf);
 
     return result;
 }

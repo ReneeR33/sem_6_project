@@ -9,6 +9,7 @@ public:
     virtual ~IServerHandler() = default;
 
     virtual void onNewConnection(int connection) = 0;
+    virtual void onClientDisconnected(int connection) = 0;
     virtual void onStringReceived(int connection, const std::string& data) = 0;
 };
 

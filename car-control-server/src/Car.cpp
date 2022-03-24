@@ -6,11 +6,13 @@
 #include <string>
 #include <stdexcept>
 #include <string.h>
+#include <iostream>
 #include "car-chassis-driver.h"
+
 
 Car::Car()
 {
-    int fd = open("/dev/car-chassis", 0);
+    fd = open("/dev/car-chassis", 0);
 
     if (fd == -1)
     {
@@ -20,6 +22,7 @@ Car::Car()
 
 Car::~Car()
 {
+    setState(ICar::State::NONE);
     close(fd);
 }
 

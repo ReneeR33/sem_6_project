@@ -13,6 +13,7 @@ public:
     void run();
 
     void onNewConnection(int connection) override;
+    void onClientDisconnected(int connection) override;
     void onStringReceived(int connection, const std::string& data) override;
 
 private:
