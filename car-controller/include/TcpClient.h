@@ -18,14 +18,10 @@ public:
     TcpClient(std::string serverAddress, int serverPort);
     ~TcpClient();
     
-    std::string getServerAddress() override;
-    int getServerPort() override;
-    bool getConnected() override;
-
-    void addHandler(ITcpClientHandler* handler) override;
     void connect() override;
     void disconnect() override;
     void sendString(const std::string& data) override;
+    std::string receiveString() override;
 
 private:
     std::string serverAddress;
@@ -34,18 +30,9 @@ private:
     int socketFD;
     sockaddr_in addr;
 
-    std::mutex mtx;
-    std::condition_variable connected_cv;
-    std::atomic<bool> connected;
-    std::atomic<bool> quit;
-
-    std::vector<ITcpClientHandler*> handlers;
-    std::unique_ptr<std::thread> thread;
+    bool connected;
 
     int bytesAvailable() const;
-    std::string getData();
-
-    void watch();
 };
 
 

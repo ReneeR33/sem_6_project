@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_CXX_FLAGS "-Wall -Werror -Wextra -pedantic -ggdb -O0 -Iproduct -Wno-unused-parameter")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
-project(car-control-client)
+project(car-controller)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
