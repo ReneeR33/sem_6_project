@@ -5,14 +5,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <dirent.h>
 #include <errno.h>
-#include <getopt.h>
-#include <ctype.h>
-#include <signal.h>
-#include <limits.h>
 #include <sys/time.h>
 #include <sys/types.h>
 
