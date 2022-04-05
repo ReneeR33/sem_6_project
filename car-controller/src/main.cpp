@@ -23,22 +23,18 @@ int main()
             {
             case 0:
                 carControlClient.setCarState(CarState::TURN_LEFT);
-                tcpClient.receiveString();
                 break;
             
             case 1:
                 carControlClient.setCarState(CarState::BACKWARD);
-                tcpClient.receiveString();
                 break;
 
             case 2:
                 carControlClient.setCarState(CarState::FOREWARD);
-                tcpClient.receiveString();
                 break;
 
             case 3:
                 carControlClient.setCarState(CarState::TURN_RIGHT);
-                tcpClient.receiveString();
                 break;
 
             default:

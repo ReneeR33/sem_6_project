@@ -3,6 +3,7 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <stdexcept>
 
 CarControlClient::CarControlClient(ITcpClient& tcpClient)
     : tcpClient(tcpClient)
@@ -40,6 +41,14 @@ void CarControlClient::setCarState(CarState state)
         break;
     
     default:
+        return;
         break;
+    }
+
+    std::string response = tcpClient.receiveString();
+
+    if (response != "ACK")
+    {
+        throw std::runtime_error("car control client: no response from server");
     }
 }
