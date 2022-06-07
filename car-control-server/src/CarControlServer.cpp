@@ -27,7 +27,7 @@ void CarControlServer::onClientDisconnected(int connection)
 
 void CarControlServer::onStringReceived(int connection, const std::string& data)
 {
-    std::cout << "received data! " << data << '\n';
+    std::cout << "received data: " << data << '\n';
 
     if (data == "FOREWARD")
     {
@@ -49,4 +49,6 @@ void CarControlServer::onStringReceived(int connection, const std::string& data)
     {
         car.setState(ICar::State::NONE);
     }
+
+    server.sendString(connection, "ACK");
 }

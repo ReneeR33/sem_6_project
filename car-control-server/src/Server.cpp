@@ -69,7 +69,7 @@ void Server::run()
 
         timeval timout;
         timout.tv_sec = 0;
-        timout.tv_usec = 200;
+        timout.tv_usec = 50;
         
         int nrSockets = select(FD_SETSIZE, &readFds, nullptr, nullptr, &timout);
 
